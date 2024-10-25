@@ -10,3 +10,8 @@ producer/kenzie_key_pair.pem
 producer/temp.txt
 .idea/
 venv/
+# Ignore Terraform state files
+*.tfstate
+*.tfstate.backup
+terraform/iam-role/.terraform
+terraform/kinesis/.terraform
