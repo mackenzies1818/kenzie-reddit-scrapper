@@ -1,0 +1,4 @@
+praw
+python-dotenv
+boto3
+urllib3==1.26.16  #pinned version to fix dependency issue with building docker image
