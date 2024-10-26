@@ -178,7 +178,24 @@ resource "aws_iam_policy" "iam_policy" {
           "ec2:DescribeInstanceAttribute",
           "ec2:DescribeVolumes",
           "ec2:DescribeInstanceCreditSpecifications",
-          "ec2:TerminateInstances"
+          "ec2:TerminateInstances",
+          "ec2:StopInstances",
+          "ec2:ModifyInstanceAttribute",
+          "ec2:StartInstances"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecr:CreateRepository",
+          "ecr:DeleteRepository",
+          "ecr:DescribeRepositories",
+          "ecr:ListTagsForResource",
+          "ecr:TagResource",
+          "ecr:UntagResource",
+          "ecr:PutImageTagMutability",
+          "ecr:PutImageScanningConfiguration"
         ],
         "Resource": "*"
       }

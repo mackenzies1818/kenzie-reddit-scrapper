@@ -4,7 +4,9 @@ from dotenv import load_dotenv
 import os
 import boto3
 import botocore.exceptions
+import logging
 
+logging.basicConfig(level=logging.INFO)
 # Define the default environment to 'test' if not explicitly set
 environment = os.getenv('ENV', '.env.test')
 
@@ -16,7 +18,7 @@ else:
     load_dotenv('.env.test')
 
 
-print(f"Running in {environment} mode")
+logging.info(f"Running in {environment} mode")
 
 client_secret = os.getenv('REDDIT_CLIENT_SECRET')
 client_id = os.getenv('REDDIT_CLIENT_ID')
@@ -59,18 +61,18 @@ def send_to_kinesis(data):
             Data=json.dumps(data),
             PartitionKey="kenzie-test" #TODO: Choose appropriate partition key
         )
-        print(f"Successfully put record: {response}")
+        logging.info(f"Successfully put record: {response}")
         return response  # Optionally return the response
     #TODO: add better error handling?
     except botocore.exceptions.ClientError as e:
         # Handle specific client errors
         error_code = e.response['Error']['Code']
-        print(f"Error occurred: {error_code} - {e}")
+        logging.info(f"Error occurred: {error_code} - {e}")
 
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        logging.info(f"An unexpected error occurred: {e}")
 
-    print("Failed to send record after retries.")
+    logging.info("Failed to send record after retries.")
     return None  # Optionally return None if failed
 
 # Fetch posts and send to Kinesis
@@ -83,7 +85,7 @@ for submission in subreddit.stream.submissions():
             "url": submission.url
         }
         send_to_kinesis(data)
-        print(f"Sent to Kinesis: {data}")
+        logging.info(f"Sent to Kinesis: {data}")
 
 
 
