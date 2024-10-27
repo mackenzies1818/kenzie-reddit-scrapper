@@ -35,9 +35,9 @@ def lambda_handler(event, context):
         payload = base64.b64decode(record['kinesis']['data']).decode('utf-8')
         data = json.loads(payload)
 
-        subject = data.get('subject', 'Test Subject')
-        body = data.get('body', 'Test Body')
-
+        subject = data.get('subject', 'Kenzie Email')
+        body = data.get('body', 'TODO Body')
+        print(f"sending email")
         response = send_email(subject, body)
         print(f"Email sent! Response: {response}")
 

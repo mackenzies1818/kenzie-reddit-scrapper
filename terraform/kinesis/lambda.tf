@@ -1,7 +1,3 @@
-locals {
-  lambda_zip_hash = filemd5("lambda/lambda_handler-v2.zip")
-}
-
 resource "aws_iam_role" "lambda_role" {
   name = "lambda_kinesis_ses_role"
 
@@ -62,21 +58,20 @@ resource "aws_s3_bucket" "lambda_code_bucket" {
   bucket = var.lambda_s3_bucket_name
 }
 
-#data "archive_file" "lambda_zip_file" {
-#  type        = "zip"
-#  source_file = "lambda/lambda_handler.py"
-#  output_path = "lambda/lambda_handler.zip"
-#}
+# Create a zip archive of the consumer.py file
+data "archive_file" "lambda_zip" {
+  type        = "zip"
+  source_file = "${path.module}/lambda/consumer.py"
+  output_path = "${path.module}/lambda/consumer.zip"
+}
 
 #uploads lambda function to s3
 resource "aws_s3_object" "lambda_zip" {
   bucket = aws_s3_bucket.lambda_code_bucket.bucket
   key    = var.lambda_s3_key
-  source = var.lambda_s3_source
-  # Add the content hash to the metadata (optional)
-  metadata = {
-    lambda_zip_hash = local.lambda_zip_hash
-  }
+  source = data.archive_file.lambda_zip.output_path
+  # Automatically update if the content hash changes
+  etag = filemd5(data.archive_file.lambda_zip.output_path)
 }
 
 resource "aws_lambda_function" "kinesis_lambda" {
@@ -84,7 +79,7 @@ resource "aws_lambda_function" "kinesis_lambda" {
   s3_bucket     = aws_s3_bucket.lambda_code_bucket.bucket
   s3_key        = aws_s3_object.lambda_zip.key
   role          = aws_iam_role.lambda_role.arn
-  handler       = "lambda_handler.lambda_handler"
+  handler       = "consumer.lambda_handler"
   runtime       = "python3.9"
   publish       = true
   timeout = 60
