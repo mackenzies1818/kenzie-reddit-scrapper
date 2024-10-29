@@ -1,9 +1,7 @@
-.env
 local_test.py
 reddit_data.json
 producer/kenzie_key_pair.pem
 producer/temp.txt
-.env
 local_test.py
 reddit_data.json
 producer/kenzie_key_pair.pem
