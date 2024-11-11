@@ -134,7 +134,8 @@ resource "aws_iam_policy" "iam_policy" {
           "iam:ListRoles",
           "iam:ListPolicies",
           "iam:UpdateAssumeRolePolicy",
-          "iam:GetRolePolicy"
+          "iam:GetRolePolicy",
+          "iam:UpdateRole"
         ],
         Resource = "*"
       },
@@ -238,6 +239,23 @@ resource "aws_iam_policy" "iam_policy" {
           "sns:Get*",
           "sns:List*",
           "sns:Publish"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "codestar-connections:List*",
+          "codestar-connections:PassConnection"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "codepipeline:*",
+          "codebuild:*",
+          "codedeploy:*",
         ],
         "Resource": "*"
       }

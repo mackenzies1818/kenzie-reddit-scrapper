@@ -39,11 +39,6 @@ resource "aws_iam_policy" "codedeploy_ec2_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
-        Action = [
-          "sqs:SendMessage"
-        ]},
-      {
         "Effect": "Allow",
         "Action": [
           "s3:GetObject",

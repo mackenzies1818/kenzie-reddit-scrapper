@@ -67,7 +67,7 @@ resource "aws_iam_policy" "codebuild_policy" {
       {
         Effect = "Allow"
         Action = [
-          "codestar-connections:UseConnection"
+          "codestar-connections:*"
         ]
         Resource = [
           "arn:aws:codeconnections:us-east-1:992382748278:connection/5e87dee8-00e8-47b9-80e0-141baa41fb2b"

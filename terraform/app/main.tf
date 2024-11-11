@@ -40,8 +40,16 @@ provider "github" {
 }
 
 resource "aws_ecr_repository" "kenzie_ecr_repo" {
-  name                 = "kenzie_ecr_repo"  # Replace with your desired repository name
-  image_tag_mutability = "MUTABLE" # Choose "MUTABLE" or "IMMUTABLE" based on your needs
+  name                 = "kenzie_ecr_repo"
+  image_tag_mutability = "MUTABLE"
+  image_scanning_configuration {
+    scan_on_push = true           # Enables scanning of images on push
+  }
+}
+
+resource "aws_ecr_repository" "python_ecr_repo" {
+  name                 = "python_ecr_repo"
+  image_tag_mutability = "MUTABLE"
   image_scanning_configuration {
     scan_on_push = true           # Enables scanning of images on push
   }
