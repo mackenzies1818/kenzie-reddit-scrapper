@@ -18,38 +18,29 @@ print(f"Running in {environment} mode")
 aws_region = os.getenv('AWS_REGION')
 aws_endpoint = os.getenv('AWS_ENDPOINT')
 sqs_queue_url = os.getenv('AWS_SQS_QUEUE_URL')
-aws_ses_verified_email = os.getenv('AWS_SES_EMAIL')
-aws_ses_recipient_email = os.getenv('AWS_SES_RECIPIENT_EMAIL')
+sns_topic_arn = os.getenv('AWS_SNS_TOPIC_ARN')
 
 # Set up SES and SQS clients
 sqs_client = boto3.client(
     "sqs",
     region_name=aws_region,
-    endpoint_url=aws_endpoint  # LocalStack endpoint if used
+    endpoint_url=aws_endpoint
 )
-ses_client = boto3.client(
-    "ses",
+sns_client = boto3.client(
+    "sns",
     region_name=aws_region,
-    endpoint_url=aws_endpoint  # LocalStack endpoint if used
+    endpoint_url=aws_endpoint
 )
 
-def send_email(recipient_email, subject, body):
+def send_to_sns(subject, body):
     """
     Sends an email via AWS SES
     """
     try:
-        response = ses_client.send_email(
-            Source=aws_ses_verified_email,
-            Destination={
-                'ToAddresses': [recipient_email],
-            },
-            Message={
-                'Subject': {'Data': subject},
-                'Body': {
-                    'Text': {'Data': body}
-                }
-            }
-        )
+        response = (sns_client.publish(
+            TopicArn=sns_topic_arn,
+            Message=body,
+            Subject=subject))
         print(f"Email sent! SES Message ID: {response['MessageId']}")
     except Exception as e:
         print(f"Error sending email: {e}")
@@ -64,11 +55,10 @@ def process_messages(messages):
         # Example: Parse message (assuming it's structured as JSON)
         print(f"Processing message: {data}")
         email_body = f"New message received from SQS: {data}"
-        recipient_email = aws_ses_recipient_email
         subject = "New SQS Message - TEST"
 
         # Send email with the content from SQS message
-        send_email(recipient_email, subject, email_body)
+        send_to_sns(subject, email_body)
 
         # Delete the message from the queue after processing
         sqs_client.delete_message(

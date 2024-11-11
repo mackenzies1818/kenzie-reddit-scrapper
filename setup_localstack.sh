@@ -15,14 +15,19 @@ fi
 # Set up LocalStack Kinesis endpoint and stream details
 #TODO: see if i can fetch from .env.test file
 AWS_ENDPOINT_URL="http://localhost:4566"
-SES_EMAIL="mackenzielsheridan@gmail.com"
 QUEUE_NAME="kenzie_reddit_queue"
+SNS_TOPIC="kenzie_reddit_sns_topic"
 
-# Configure a verified email in LocalStack SES
-aws --endpoint-url=$AWS_ENDPOINT_URL ses verify-email-identity --email-address $SES_EMAIL
-echo "Email $SES_EMAIL is now verified!"
 # Configure an sqs queue
 aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name $QUEUE_NAME
 echo "Queue $QUEUE_NAME is now created!"
+# Configure an sns topic
+aws --endpoint-url=http://localhost:4566 sns create-topic --name $SNS_TOPIC
+echo "Topic $SNS_TOPIC is now created!"
+
+aws --endpoint-url=http://localhost:4566 sns subscribe \
+    --topic-arn arn:aws:sns:us-east-1:000000000000:$SNS_TOPIC \
+    --protocol sqs \
+    --notification-endpoint arn:aws:sqs:us-east-1:000000000000:$QUEUE_NAME
 
 done

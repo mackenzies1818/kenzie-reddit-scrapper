@@ -27,7 +27,6 @@ reddit_useragent = os.getenv('REDDIT_USER_AGENT')
 aws_region = os.getenv('AWS_REGION')
 aws_endpoint = os.getenv('AWS_ENDPOINT')
 sqs_queue_url = os.getenv('AWS_SQS_QUEUE_URL')
-
 # Initialize the Reddit API client
 reddit = praw.Reddit(
     client_id=client_id,
@@ -71,14 +70,18 @@ def send_to_sqs(data):
     logging.info("Failed to send message after retries.")
     return None  # Optionally return None if failed
 
-# Fetch posts and send to SQS
-subreddit = reddit.subreddit('brokenbones')
-for submission in subreddit.stream.submissions():
-    if contains_keyword(submission.title, keywords):
-        data = {
-            "title": submission.title,
-            "upvotes": submission.score,
-            "url": submission.url
-        }
-        send_to_sqs(data)
-        logging.info(f"Sent to SQS: {data}")
+def send_data():
+    # Fetch posts and send to SQS
+    subreddit = reddit.subreddit('brokenbones')
+    for submission in subreddit.stream.submissions():
+        if contains_keyword(submission.title, keywords):
+            data = {
+                "title": submission.title,
+                "upvotes": submission.score,
+                "url": submission.url
+            }
+            send_to_sqs(data)
+            logging.info(f"Sent to SQS: {data}")
+
+if __name__ == "__main__":
+    send_data()
