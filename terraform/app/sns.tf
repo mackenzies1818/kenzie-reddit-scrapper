@@ -29,5 +29,5 @@ resource "aws_sqs_queue_policy" "example_sqs_queue_policy" {
 resource "aws_sns_topic_subscription" "reddit_email_subscription" {
   topic_arn = aws_sns_topic.reddit_sns_topic.arn
   protocol  = "email"
-  endpoint  = var.lambda_recipient_email
+  endpoint  = var.sns_receiver_email
 }
