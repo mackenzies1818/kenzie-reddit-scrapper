@@ -100,7 +100,8 @@ resource "aws_iam_policy" "iam_policy" {
           "s3:DeleteBucket",
           "s3:PutObject",
           "s3:GetObjectTagging",
-          "s3:DeleteObject"
+          "s3:DeleteObject",
+          "s3:DeleteBucket"
         ],
         Resource = "*"
       },
@@ -118,6 +119,7 @@ resource "aws_iam_policy" "iam_policy" {
           "iam:ListPolicyVersions",
           "iam:DeleteRole",
           "iam:DeletePolicy",
+          "iam:DeleteRolePolicy",
           "iam:AttachRolePolicy",
           "iam:PassRole",
           "iam:CreatePolicyVersion",
@@ -126,7 +128,13 @@ resource "aws_iam_policy" "iam_policy" {
           "iam:DeleteInstanceProfile",
           "iam:AddRoleToInstanceProfile",
           "iam:DetachRolePolicy",
-          "iam:RemoveRoleFromInstanceProfile"
+          "iam:RemoveRoleFromInstanceProfile",
+          "iam:DeletePolicyVersion",
+          "iam:PutRolePolicy",
+          "iam:ListRoles",
+          "iam:ListPolicies",
+          "iam:UpdateAssumeRolePolicy",
+          "iam:GetRolePolicy"
         ],
         Resource = "*"
       },
@@ -196,6 +204,40 @@ resource "aws_iam_policy" "iam_policy" {
           "ecr:UntagResource",
           "ecr:PutImageTagMutability",
           "ecr:PutImageScanningConfiguration"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "sqs:CreateQueue",
+          "sqs:GetQueueAttributes",
+          "sqs:DeleteQueue",
+          "sqs:SetQueueAttributes",
+          "sqs:ListQueueTags"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:GetResourcePolicy",
+          "secretsmanager:GetSecretValue"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "sns:CreateTopic",
+          "sns:DeleteTopic",
+          "sns:Subscribe",
+          "sns:Unsubscribe",
+          "sns:SetTopicAttributes",
+          "sns:Get*",
+          "sns:List*",
+          "sns:Publish"
         ],
         "Resource": "*"
       }
