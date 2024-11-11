@@ -57,3 +57,27 @@ variable "lambda_sender_email" {
   type        = string
   default     = "mackenzielsheridan+sender@gmail.com"
 }
+
+variable "ec2_codedeploy_app_name" {
+  description = "Sender email for SES"
+  type        = string
+  default     = "kenzie-ec2-reddit-deployment-app"
+}
+
+variable "ec2_deploy_deployment_group_name" {
+  description = "Sender email for SES"
+  type        = string
+  default     = "kenzie-ec2-reddit-deployment-group"
+}
+
+variable "ec2_reddit_secrets_arn" {
+  description = "Sender email for SES"
+  type        = string
+  default     = "arn:aws:secretsmanager:us-east-1:992382748278:secret:kenzie-reddit-secrets-x3LUQT"
+}
+
+variable "artifact_bucket_name" {
+  description = "Sender email for SES"
+  type        = string
+  default     = "kenzie-pipeline-artifacts"
+}

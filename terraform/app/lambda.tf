@@ -21,18 +21,18 @@ resource "aws_iam_policy" "lambda_policy" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
-      {
-        Action   = [
-          "kinesis:GetRecords",
-          "kinesis:GetShardIterator",
-          "kinesis:DescribeStream",
-          "kinesis:ListStreams",
-          "kinesis:ListShards",
-          "kinesis:DescribeStreamSummary"
-        ],
-        Effect   = "Allow",
-        Resource = aws_kinesis_stream.kenzie.arn
-      },
+#      {
+#        Action   = [
+#          "kinesis:GetRecords",
+#          "kinesis:GetShardIterator",
+#          "kinesis:DescribeStream",
+#          "kinesis:ListStreams",
+#          "kinesis:ListShards",
+#          "kinesis:DescribeStreamSummary"
+#        ],
+#        Effect   = "Allow",
+#        Resource = aws_kinesis_stream.kenzie.arn
+#      },
       {
         Action   = "ses:SendEmail",
         Effect   = "Allow",
@@ -97,20 +97,20 @@ resource "aws_lambda_function" "kinesis_lambda" {
   }
 }
 
-resource "aws_lambda_permission" "allow_kinesis_invoke" {
-  statement_id  = "AllowExecutionFromKinesis"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.kinesis_lambda.function_name
-  principal     = "kinesis.amazonaws.com"
-  source_arn    = aws_kinesis_stream.kenzie.arn
-}
-
-resource "aws_lambda_event_source_mapping" "kinesis_trigger" {
-  event_source_arn = aws_kinesis_stream.kenzie.arn
-  function_name    = aws_lambda_function.kinesis_lambda.arn
-  starting_position = "LATEST"
-  batch_size = 1
-}
+#resource "aws_lambda_permission" "allow_kinesis_invoke" {
+#  statement_id  = "AllowExecutionFromKinesis"
+#  action        = "lambda:InvokeFunction"
+#  function_name = aws_lambda_function.kinesis_lambda.function_name
+#  principal     = "kinesis.amazonaws.com"
+#  source_arn    = aws_kinesis_stream.kenzie.arn
+#}
+#
+#resource "aws_lambda_event_source_mapping" "kinesis_trigger" {
+#  event_source_arn = aws_kinesis_stream.kenzie.arn
+#  function_name    = aws_lambda_function.kinesis_lambda.arn
+#  starting_position = "LATEST"
+#  batch_size = 1
+#}
 
 #verify email so that ses can send it successfully
 resource "aws_ses_email_identity" "lambda_ses_email_sender" {

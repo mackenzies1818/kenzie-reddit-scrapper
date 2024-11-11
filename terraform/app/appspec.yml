@@ -1,0 +1,16 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ec2-user/deployment
+
+hooks:
+  BeforeInstall:
+    - location: scripts/stop_existing_container.sh
+      timeout: 300
+      runas: root
+
+  AfterInstall:
+    - location: scripts/start_new_container.sh
+      timeout: 300
+      runas: root

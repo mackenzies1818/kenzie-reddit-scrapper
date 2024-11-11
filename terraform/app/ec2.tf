@@ -16,29 +16,38 @@ resource "aws_iam_role" "ec2_kinesis_role" {
 }
 
 
-resource "aws_iam_policy" "kinesis_policy" {
+resource "aws_iam_policy" "codedeploy_ec2_policy" {
   name        = "KinesisPolicy"
   description = "Policy to allow Kinesis actions"
   policy      = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
-        Action = [
-          "kinesis:PutRecord",
-          "kinesis:PutRecords",
-          "kinesis:DescribeStream",
-          "kinesis:GetRecords",
-          "kinesis:GetShardIterator",
+        "Effect": "Allow",
+        "Action": [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        "Resource": [
+          aws_s3_bucket.pipeline_bucket.arn,                    # Allow listing the bucket
+          "${aws_s3_bucket.pipeline_bucket.arn}/*" # Allow access to all objects in the prefix
         ]
-        Resource = aws_kinesis_stream.kenzie.arn
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "codedeploy:PutLifecycleEventHookExecutionStatus",
+          "codedeploy:GetDeployment",
+          "codedeploy:GetDeploymentConfig"
+        ],
+        "Resource": "*"
       }
     ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "attach_kinesis_policy" {
-  policy_arn = aws_iam_policy.kinesis_policy.arn
+resource "aws_iam_role_policy_attachment" "attach_codedeploy_policy" {
+  policy_arn = aws_iam_policy.codedeploy_ec2_policy.arn
   role       = aws_iam_role.ec2_kinesis_role.name
 }
 
@@ -57,31 +66,31 @@ resource "aws_iam_role_policy_attachment" "attach_ssm_ec2_access" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-resource "aws_iam_policy" "kms_access_policy" {
-  name        = "KMSAccessPolicy"
-  description = "Allows EC2 instance to use KMS for Kinesis stream encryption"
-
-  policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:GenerateDataKey*",
-          "kms:DescribeKey"
-        ],
-        "Resource": aws_kms_key.kinesis_key.arn
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "attach_kms_access_policy" {
-  role       = aws_iam_role.ec2_kinesis_role.name
-  policy_arn = aws_iam_policy.kms_access_policy.arn
-}
+#resource "aws_iam_policy" "kms_access_policy" {
+#  name        = "KMSAccessPolicy"
+#  description = "Allows EC2 instance to use KMS for Kinesis stream encryption"
+#
+#  policy = jsonencode({
+#    "Version": "2012-10-17",
+#    "Statement": [
+#      {
+#        "Effect": "Allow",
+#        "Action": [
+#          "kms:Encrypt",
+#          "kms:Decrypt",
+#          "kms:GenerateDataKey*",
+#          "kms:DescribeKey"
+#        ],
+#        "Resource": aws_kms_key.kinesis_key.arn
+#      }
+#    ]
+#  })
+#}
+#
+#resource "aws_iam_role_policy_attachment" "attach_kms_access_policy" {
+#  role       = aws_iam_role.ec2_kinesis_role.name
+#  policy_arn = aws_iam_policy.kms_access_policy.arn
+#}
 
 
 
@@ -120,7 +129,7 @@ resource "aws_security_group" "allow_ssh_http" {
 
 # Define the EC2 instance
 
-resource "aws_instance" "kinesis_docker_server" {
+resource "aws_instance" "reddit_ec2_docker_service" {
   ami           = "ami-0ddc798b3f1a5117e"
   instance_type = "t2.micro"
 
@@ -132,10 +141,17 @@ resource "aws_instance" "kinesis_docker_server" {
 
   user_data = <<-EOF
     #!/bin/bash
+    # Update packages
     yum update -y
+
+    # Install Docker and AWS CLI
     yum install -y docker aws-cli
+
+    # Enable and start Docker
     systemctl enable docker
     systemctl start docker
+
+    # Add ec2-user to Docker group
     usermod -aG docker ec2-user
 
     # Wait for Docker to start
@@ -144,9 +160,25 @@ resource "aws_instance" "kinesis_docker_server" {
     # Authenticate Docker to ECR
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 992382748278.dkr.ecr.us-east-1.amazonaws.com
 
-    # Pull and run Docker container
-    docker pull 992382748278.dkr.ecr.us-east-1.amazonaws.com/kenzie_ecr_repo:oct-26-1
-    docker run -d -p 80:80 992382748278.dkr.ecr.us-east-1.amazonaws.com/kenzie_ecr_repo:oct-26-1
+    # Define the repository and tag
+    REPO_URI="992382748278.dkr.ecr.us-east-1.amazonaws.com/kenzie_ecr_repo"
+    TAG="latest"
+
+    # Pull the latest Docker image
+    docker pull $REPO_URI:$TAG
+
+    # Run the Docker container in detached mode, mapping port 80 of the container to port 80 of the host
+    docker run -d --name "reddit_streaming_service" -p 80:80 $REPO_URI:$TAG
+
+    # Install CodeDeploy Agent
+    yum install -y ruby
+    cd /home/ec2-user
+    wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install
+    chmod +x ./install
+    ./install auto
+
+    # Start CodeDeploy agent service
+    service codedeploy-agent start
   EOF
 
   tags = {
@@ -156,5 +188,5 @@ resource "aws_instance" "kinesis_docker_server" {
 
 # Output the public IP
 output "instance_public_ip" {
-  value = aws_instance.kinesis_docker_server.public_ip
+  value = aws_instance.reddit_ec2_docker_service.public_ip
 }

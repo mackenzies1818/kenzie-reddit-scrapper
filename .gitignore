@@ -12,4 +12,4 @@ venv/
 *.tfstate
 *.tfstate.backup
 terraform/iam-role/.terraform
-terraform/kinesis/.terraform
+terraform/app/.terraform
