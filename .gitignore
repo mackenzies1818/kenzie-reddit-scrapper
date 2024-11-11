@@ -1,13 +1,9 @@
-local_test.py
+src/kenzie_key_pair.pem
+src/temp.txt
 reddit_data.json
-producer/kenzie_key_pair.pem
-producer/temp.txt
-local_test.py
-reddit_data.json
-producer/kenzie_key_pair.pem
-producer/temp.txt
+src/kenzie_key_pair.pem
 .idea/
-venv/
+src/venv
 # Ignore Terraform state files
 *.tfstate
 *.tfstate.backup

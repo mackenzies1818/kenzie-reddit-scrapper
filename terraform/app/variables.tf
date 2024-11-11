@@ -10,16 +10,10 @@ variable "aws_role_arn" {
   default     = "arn:aws:iam::992382748278:role/terraform-role"
 }
 
-variable "lambda_recipient_email" {
+variable "sns_receiver_email" {
   description = "Recipient email for SES"
   type        = string
   default     = "mackenzielsheridan+recipient@gmail.com"
-}
-
-variable "lambda_sender_email" {
-  description = "Sender email for SES"
-  type        = string
-  default     = "mackenzielsheridan+sender@gmail.com"
 }
 
 variable "sqs_queue_name" {
