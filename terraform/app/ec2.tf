@@ -26,15 +26,47 @@ resource "aws_iam_policy" "ec2_policy" {
         Effect = "Allow"
         Action = [
           "sqs:SendMessage"
+      ]
+      Resource = aws_sqs_queue.reddit_queue.arn
+      }]
+  })
+}
+
+resource "aws_iam_policy" "codedeploy_ec2_policy" {
+  name        = "KinesisPolicy"
+  description = "Policy to allow Kinesis actions"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        "Resource": [
+          aws_s3_bucket.pipeline_bucket.arn,                    # Allow listing the bucket
+          "${aws_s3_bucket.pipeline_bucket.arn}/*" # Allow access to all objects in the prefix
         ]
-        Resource = aws_sqs_queue.reddit_queue.arn
-      }
-    ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "codedeploy:PutLifecycleEventHookExecutionStatus",
+          "codedeploy:GetDeployment",
+          "codedeploy:GetDeploymentConfig"
+        ],
+        "Resource": "*"
+      }]
   })
 }
 
 resource "aws_iam_role_policy_attachment" "attach_ec2_policy" {
   policy_arn = aws_iam_policy.ec2_policy.arn
+  role       = aws_iam_role.ec2_reddit_role.name
+}
+resource "aws_iam_role_policy_attachment" "attach_codedeploy_policy" {
+  policy_arn = aws_iam_policy.codedeploy_ec2_policy.arn
   role       = aws_iam_role.ec2_reddit_role.name
 }
 
@@ -100,10 +132,17 @@ resource "aws_instance" "reddit_docker_server" {
 
   user_data = <<-EOF
     #!/bin/bash
+    # Update packages
     yum update -y
+
+    # Install Docker and AWS CLI
     yum install -y docker aws-cli
+
+    # Enable and start Docker
     systemctl enable docker
     systemctl start docker
+
+    # Add ec2-user to Docker group
     usermod -aG docker ec2-user
 
     # Wait for Docker to start
@@ -112,9 +151,25 @@ resource "aws_instance" "reddit_docker_server" {
     # Authenticate Docker to ECR
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 992382748278.dkr.ecr.us-east-1.amazonaws.com
 
-    # Pull and run Docker container
-    docker pull 992382748278.dkr.ecr.us-east-1.amazonaws.com/kenzie_ecr_repo:oct-26-1
-    docker run -d -p 80:80 992382748278.dkr.ecr.us-east-1.amazonaws.com/kenzie_ecr_repo:oct-26-1
+    # Define the repository and tag
+    REPO_URI="992382748278.dkr.ecr.us-east-1.amazonaws.com/kenzie_ecr_repo"
+    TAG="latest"
+
+    # Pull the latest Docker image
+    docker pull $REPO_URI:$TAG
+
+    # Run the Docker container in detached mode, mapping port 80 of the container to port 80 of the host
+    docker run -d --name "reddit_streaming_service" -p 80:80 $REPO_URI:$TAG
+
+    # Install CodeDeploy Agent
+    yum install -y ruby
+    cd /home/ec2-user
+    wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install
+    chmod +x ./install
+    ./install auto
+
+    # Start CodeDeploy agent service
+    service codedeploy-agent start
   EOF
 
   tags = {
