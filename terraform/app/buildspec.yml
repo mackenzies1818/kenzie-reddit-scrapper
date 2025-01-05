@@ -12,7 +12,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build --platform linux/amd64 -t kenzie_ecr_repo .
+      - docker build -f docker/Dockerfile --platform linux/amd64 -t kenzie_ecr_repo .
       - docker tag kenzie_ecr_repo:latest $REPOSITORY_URI:latest
       - docker tag kenzie_ecr_repo:latest $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
   post_build:
@@ -22,5 +22,5 @@ phases:
       - docker push $REPOSITORY_URI:latest
 artifacts:
   files:
-    - appspec.yml
+    - appspec-1.yml
     - '**/*'  # This uploads all files from the build to S3 for CodeDeplo

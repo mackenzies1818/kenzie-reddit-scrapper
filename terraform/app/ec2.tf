@@ -173,7 +173,7 @@ resource "aws_instance" "reddit_docker_server" {
   EOF
 
   tags = {
-    Name = "kinesis-producer-server"
+    Name = "reddit_streaming_service"
   }
 }
 

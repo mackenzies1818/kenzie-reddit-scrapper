@@ -77,21 +77,9 @@ resource "aws_codedeploy_deployment_group" "reddit_ec2_codedeploy_deployment_gro
   deployment_group_name = var.ec2_deploy_deployment_group_name
   service_role_arn      = aws_iam_role.codedeploy_role.arn
   deployment_config_name = "CodeDeployDefault.AllAtOnce"
-  # Blue/Green deployment configuration settings
-  blue_green_deployment_config {
-    deployment_ready_option {
-      action_on_timeout = "CONTINUE_DEPLOYMENT"
-    }
-
-    terminate_blue_instances_on_deployment_success {
-      action = "TERMINATE"
-      termination_wait_time_in_minutes = 5
-    }
-  }
-
-  deployment_style {
-    deployment_option = "WITH_TRAFFIC_CONTROL"
-    deployment_type   = "BLUE_GREEN"
+  auto_rollback_configuration {
+    enabled = true
+    events  = ["DEPLOYMENT_FAILURE"]
   }
 
   # Target EC2 instances using tags (adjust if needed)
@@ -101,11 +89,5 @@ resource "aws_codedeploy_deployment_group" "reddit_ec2_codedeploy_deployment_gro
       type  = "KEY_AND_VALUE"
       value = aws_instance.reddit_docker_server.tags.Name
     }
-  }
-
-  # Define automatic rollback on failure
-  auto_rollback_configuration {
-    enabled = true
-    events  = ["DEPLOYMENT_FAILURE"]
   }
 }
