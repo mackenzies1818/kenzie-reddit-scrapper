@@ -22,5 +22,5 @@ phases:
       - docker push $REPOSITORY_URI:latest
 artifacts:
   files:
-    - appspec-1.yml
+    - appspec.yml
     - '**/*'  # This uploads all files from the build to S3 for CodeDeplo
