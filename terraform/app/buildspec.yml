@@ -23,4 +23,5 @@ phases:
 artifacts:
   files:
     - terraform/app/appspec.yml
-    - '**/*'  # This uploads all files from the build to S3 for CodeDeplo
+    - '**/*'  # This uploads all files from the build to S3 for CodeDeploy
+  discard-paths: yes    # Removes directory paths, placing all files at the root
