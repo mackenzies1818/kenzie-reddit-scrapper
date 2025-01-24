@@ -15,13 +15,19 @@ phases:
       - docker build -f docker/Dockerfile --platform linux/amd64 -t kenzie_ecr_repo .
       - docker tag kenzie_ecr_repo:latest $REPOSITORY_URI:latest
       - docker tag kenzie_ecr_repo:latest $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - echo "Zipping deployment files, including app code..."
+      - zip -r deployment-package.zip terraform/app/appspec.yml scripts/ src/ docker/
   post_build:
     commands:
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - docker push $REPOSITORY_URI:latest
+      - echo "Uploading deployment package to S3..."
+      - aws s3 cp deployment-package.zip s3://kenzie-pipeline-artifacts/deployment-package.zip
 artifacts:
   files:
-    - terraform/app/appspec.yml
-    - '**/*'  # This uploads all files from the build to S3 for CodeDeploy
-  discard-paths: yes    # Removes directory paths, placing all files at the root
+    - deployment-package.zip
+    - src/**/*
+    - docker/**/*
+    - terraform/**/*
+  discard-paths: yes
