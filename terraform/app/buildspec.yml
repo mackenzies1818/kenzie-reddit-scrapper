@@ -16,7 +16,7 @@ phases:
       - docker tag kenzie_ecr_repo:latest $REPOSITORY_URI:latest
       - docker tag kenzie_ecr_repo:latest $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - echo "Zipping deployment files, including app code..."
-      - zip -r deployment-package.zip terraform/app/appspec.yml scripts/ src/ docker/
+      - zip -r deployment-package.zip terraform/app/appspec.yml terraform/app/scripts/ src/ docker/
   post_build:
     commands:
       - echo Pushing the Docker image...

@@ -1,16 +1,16 @@
 version: 0.0
 os: linux
 files:
-  - source: /
-    destination: /home/ec2-user/deployment
+  - source: terraform/app/scripts/
+    destination: /home/ec2-user/deployment/scripts
 
 hooks:
   BeforeInstall:
-    - location: scripts/stop_existing_container.sh
+    - location: /home/ec2-user/deployment/scripts/stop_existing_container.sh
       timeout: 300
       runas: root
 
   AfterInstall:
-    - location: scripts/start_new_container.sh
+    - location: /home/ec2-user/deployment/scripts/start_new_container.sh
       timeout: 300
       runas: root
