@@ -30,3 +30,4 @@ artifacts:
     - src/**/*
     - docker/**/*
     - terraform/**/*
+  discard-paths: yes

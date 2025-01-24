@@ -114,7 +114,6 @@ resource "aws_codebuild_project" "reddit_ec2_codebuild" {
       name  = "SECRETS_ARN"
       value = var.ec2_reddit_secrets_arn
     }
-    #TODO: pass in s3 bucket name variable
   }
 
   source {
