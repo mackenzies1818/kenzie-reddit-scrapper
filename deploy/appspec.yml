@@ -9,7 +9,6 @@ hooks:
     - location: /home/ec2-user/deployment/scripts/stop_existing_container.sh
       timeout: 300
       runas: root
-n
   AfterInstall:
     - location: /home/ec2-user/deployment/scripts/start_new_container.sh
       timeout: 300
