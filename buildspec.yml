@@ -34,4 +34,4 @@ artifacts:
     - src/**/*
     - docker/**/*
     - terraform/**/*
-    - deploy/*
+    - deploy/**/*
