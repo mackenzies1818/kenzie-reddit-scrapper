@@ -15,10 +15,13 @@ phases:
       - docker build -f docker/Dockerfile --platform linux/amd64 -t kenzie_ecr_repo .
       - docker tag kenzie_ecr_repo:latest $REPOSITORY_URI:latest
       - docker tag kenzie_ecr_repo:latest $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
-      - echo "Zipping deployment files, including app code..."
-      - zip -r deployment-package.zip terraform/app/appspec.yml terraform/app/scripts/ src/ docker/
+      - echo "Zipping deployment files, including app code with updated file paths..."
+      - zip -r deployment-package.zip deploy/appspec.yml deploy/scripts/ src/ docker/
   post_build:
     commands:
+      - echo "Moving appspec.yml to root..."
+      - cp deploy/appspec.yml .  # Move appspec.yml to the root
+      - cp -r deploy/scripts .   # Move scripts if needed
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - docker push $REPOSITORY_URI:latest
@@ -27,7 +30,8 @@ phases:
 artifacts:
   files:
     - deployment-package.zip
+    - appspec.yml
     - src/**/*
     - docker/**/*
     - terraform/**/*
-  discard-paths: yes
+    - deploy/*
