@@ -149,6 +149,7 @@ resource "aws_codepipeline" "reddit_deployment_pipeline" {
       configuration = {
         ApplicationName     = var.ec2_codedeploy_app_name
         DeploymentGroupName = var.ec2_deploy_deployment_group_name
+        AppSpecYamlPath     = "deploy/appspec.yml" # Updated path for AppSpec file
       }
       version = "1"
     }

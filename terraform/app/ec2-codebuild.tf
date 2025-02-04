@@ -96,7 +96,7 @@ resource "aws_codebuild_project" "reddit_ec2_codebuild" {
   service_role  = aws_iam_role.codebuild_role.arn  # Define with permissions to ECR
 
   artifacts {
-    type = "CODEPIPELINE"
+    type = "CODEPIPELINE" # could use type s3 when there is a need to keep a copy of build artifacts, using codepipelien type does not explicitly store the artifacts in s3
   }
 
   environment {
