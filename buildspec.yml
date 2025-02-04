@@ -33,5 +33,4 @@ artifacts:
     - appspec.yml
     - src/**/*
     - docker/**/*
-    - terraform/**/*
     - deploy/**/*

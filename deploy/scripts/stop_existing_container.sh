@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e  # Exit immediately if a command exits with a non-zero status
 
-# Get the name of the container to stop; replace 'my_container_name' with your actual container name
 CONTAINER_NAME="reddit_streaming_service"
 
 # Check if the container is running

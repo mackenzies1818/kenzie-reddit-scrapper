@@ -145,22 +145,6 @@ resource "aws_instance" "reddit_docker_server" {
     # Add ec2-user to Docker group
     usermod -aG docker ec2-user
 
-    # Wait for Docker to start
-    sleep 10
-
-    # Authenticate Docker to ECR
-    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 992382748278.dkr.ecr.us-east-1.amazonaws.com
-
-    # Define the repository and tag
-    REPO_URI="992382748278.dkr.ecr.us-east-1.amazonaws.com/kenzie_ecr_repo"
-    TAG="latest"
-
-    # Pull the latest Docker image
-    docker pull $REPO_URI:$TAG
-
-    # Run the Docker container in detached mode, mapping port 80 of the container to port 80 of the host
-    docker run -d --name "reddit_streaming_service" -p 80:80 $REPO_URI:$TAG
-
     # Install CodeDeploy Agent
     yum install -y ruby
     cd /home/ec2-user

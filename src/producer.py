@@ -71,7 +71,6 @@ def send_to_sqs(data):
     return None  # Optionally return None if failed
 
 def send_data():
-    logging.info(f"testing that the deployment worked - MACKENZIE!!!!!")
     # Fetch posts and send to SQS
     subreddit = reddit.subreddit('brokenbones')
     for submission in subreddit.stream.submissions():
