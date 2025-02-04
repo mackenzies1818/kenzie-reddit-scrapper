@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.9
+FROM public.ecr.aws/docker/library/python:3.9
 WORKDIR /app
 COPY .env /app/
 COPY src/producer.py /app/producer.py
