@@ -118,6 +118,6 @@ resource "aws_codebuild_project" "reddit_ec2_codebuild" {
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = file("buildspec.yml")
+#    buildspec = file("buildspec.yml")
   }
 }
