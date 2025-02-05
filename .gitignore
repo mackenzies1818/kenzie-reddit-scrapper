@@ -4,8 +4,15 @@ reddit_data.json
 src/kenzie_key_pair.pem
 .idea/
 src/venv
+venv/*
 # Ignore Terraform state files
 *.tfstate
 *.tfstate.backup
 terraform/iam-role/.terraform
 /terraform/app/.terraform/
+lambda/__pycache__/
+lambda/*.dist-info/
+lambda/*.egg-info/
+lambda/*
+!lambda/lambda_function.py
+!lambda/zip_lambda.sh

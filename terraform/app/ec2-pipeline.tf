@@ -113,7 +113,7 @@ resource "aws_codepipeline" "reddit_deployment_pipeline" {
       configuration = {
         ConnectionArn    = data.aws_codestarconnections_connection.github_connection_v2.arn
         FullRepositoryId = "mackenzies1818/kenzie-reddit-scrapper"
-        BranchName       = "ec2-deployment-automation"
+        BranchName       = "main"
       }
     }
   }
