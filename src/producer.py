@@ -25,7 +25,7 @@ reddit_username = os.getenv('REDDIT_USERNAME')
 reddit_password = os.getenv('REDDIT_PASSWORD')
 reddit_useragent = os.getenv('REDDIT_USER_AGENT')
 aws_region = os.getenv('AWS_REGION')
-aws_endpoint = os.getenv('AWS_ENDPOINT')
+aws_endpoint = os.getenv('AWS_SQS_ENDPOINT')
 sqs_queue_url = os.getenv('AWS_SQS_QUEUE_URL')
 # Initialize the Reddit API client
 reddit = praw.Reddit(
@@ -52,6 +52,7 @@ def contains_keyword(text, keywords):
 
 def send_to_sqs(data):
     print(f"sending to SQS: {data}")
+    print(f"SQS QUEUE URL: {sqs_queue_url}")
     try:
         # Attempt to send the message to SQS
         response = sqs.send_message(

@@ -18,7 +18,11 @@ When there is a new dependency change and the requirements.in is updated, to gen
    `docker compose up -d`
 
 
-3. Start consumer:
+3. Activate python environment:
+
+   `source venv/bin/activate`
+
+4. Start consumer:
 
    `python3 test/consumer.py`
 
