@@ -1,5 +1,5 @@
 resource "aws_iam_role" "ec2_reddit_role" {
-  name = "EC2KinesisRole"
+  name = "EC2Role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -17,8 +17,8 @@ resource "aws_iam_role" "ec2_reddit_role" {
 
 
 resource "aws_iam_policy" "ec2_policy" {
-  name        = "SQSPolicy"
-  description = "Policy to allow SQS actions"
+  name        = "EC2Policy"
+
   policy      = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -28,16 +28,7 @@ resource "aws_iam_policy" "ec2_policy" {
           "sqs:SendMessage"
       ]
       Resource = aws_sqs_queue.reddit_queue.arn
-      }]
-  })
-}
-
-resource "aws_iam_policy" "codedeploy_ec2_policy" {
-  name        = "KinesisPolicy"
-  description = "Policy to allow Kinesis actions"
-  policy      = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
+      },
       {
         "Effect": "Allow",
         "Action": [
@@ -65,15 +56,6 @@ resource "aws_iam_role_policy_attachment" "attach_ec2_policy" {
   policy_arn = aws_iam_policy.ec2_policy.arn
   role       = aws_iam_role.ec2_reddit_role.name
 }
-resource "aws_iam_role_policy_attachment" "attach_codedeploy_policy" {
-  policy_arn = aws_iam_policy.codedeploy_ec2_policy.arn
-  role       = aws_iam_role.ec2_reddit_role.name
-}
-
-resource "aws_iam_instance_profile" "ec2_reddit_profile" {
-  name = "EC2RedditInstanceProfile"
-  role = aws_iam_role.ec2_reddit_role.name
-}
 
 resource "aws_iam_role_policy_attachment" "attach_ecr_access" {
   role       = aws_iam_role.ec2_reddit_role.name
@@ -83,6 +65,11 @@ resource "aws_iam_role_policy_attachment" "attach_ecr_access" {
 resource "aws_iam_role_policy_attachment" "attach_ssm_ec2_access" {
   role       = aws_iam_role.ec2_reddit_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "ec2_reddit_profile" {
+  name = "EC2RedditInstanceProfile"
+  role = aws_iam_role.ec2_reddit_role.name
 }
 
 # Create a security group that allows SSH and HTTP traffic
@@ -119,7 +106,6 @@ resource "aws_security_group" "allow_ssh_http" {
 }
 
 # Define the EC2 instance
-
 resource "aws_instance" "reddit_docker_server" {
   ami           = "ami-0ddc798b3f1a5117e"
   instance_type = "t2.micro"
